@@ -2,9 +2,11 @@
 import json
 import requests as re
 
+#simple func just to filter keys i want in the final dict
 def only_keys(d, keys):
      return {x: d[x] for x in d if x in keys}
 
+#extracts all info about series episodes
 def episodes(infos):
     eps = {}
     desired_keys = [
@@ -19,6 +21,7 @@ def episodes(infos):
 
     return eps
 
+#with specific code this func returns general info about series
 def series_info(imdb_code):
     desired_keys = [
         'id', 'title', 'year', 'plot', 'stars', 'genres', 'imDbRating', 'imDbRatingVotes',
@@ -27,10 +30,10 @@ def series_info(imdb_code):
 
     request_result = re.get('https://imdb-api.com/en/API/Title/k_a7dsw5s1/' + imdb_code)
     full_json = json.loads(request_result.text)
-
     info = only_keys(full_json, desired_keys)
     return info
 
+#function that searches given name and return imdbs matching options
 def search_series(name):
     request_result = re.get('https://imdb-api.com/en/API/SearchSeries/k_a7dsw5s1/' + name)
     matches = json.loads(request_result.text)
