@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import requests as re
+import sqlite3
 
 #simple func just to filter keys i want in the final dict
 def only_keys(d, keys):
@@ -21,16 +22,29 @@ def episodes(infos):
 
     return eps
 
-#with specific code this func returns general info about series
+#with specific code this func inserts in database general info about series
 def series_info(imdb_code):
     desired_keys = [
         'id', 'title', 'year', 'plot', 'stars', 'genres', 'imDbRating', 'imDbRatingVotes',
-        'tvSeriesInfo', 'seasons'
+        'tvSeriesInfo'
     ]
 
     request_result = re.get('https://imdb-api.com/en/API/Title/k_a7dsw5s1/' + imdb_code)
     full_json = json.loads(request_result.text)
     info = only_keys(full_json, desired_keys)
+
+    with sqlite3.connect('series_info.db') as conn:
+        cursor = conn.cursor()
+        res = cursor.execute(
+            """INSERT INTO series_info (imdb_code, series_name, seasons, imdb_rating, rating_votes, year_released, year_ended, genres, stars, plot) VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            (
+                info['id'], info['title'], len(info['tvSeriesInfo']['seasons']),
+                info['imDbRating'], info['imDbRatingVotes'], info['year'],
+                info['tvSeriesInfo']['yearEnd'], info['genres'], info['stars'],
+                info['plot']
+            )
+        )
+
     return info
 
 #function that searches given name and return imdbs matching options
@@ -47,8 +61,9 @@ def search_series(name):
     return options
 
 def main():
-    print(search_series('supernatural'))
-    print(episodes(series_info('tt0460681')))
+    # print(search_series('supernatural'))
+    # print(series_info('tt0460681'))
+    
     return
 
 if __name__ == '__main__':
