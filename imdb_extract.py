@@ -2,7 +2,6 @@
 import json
 import requests as re
 import sqlite3
-import pandas as pd
 
 #simple func just to filter keys i want in the final dict
 def only_keys(d, keys):
